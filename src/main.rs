@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use std::{fs};
+use std::{fs, env};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -24,7 +24,7 @@ fn main() {
     match &args.command {
         Commands::Init {} => {
             match fs::create_dir(".tig") {
-                Ok(()) => { println!("Initializing an empty repository!"); }
+                Ok(()) => { init_repo(); }
                 Err(_) => { println!("Tig repository already exists!"); }
             };
         },
@@ -32,9 +32,27 @@ fn main() {
             println!("Checking status!");
         },
         Commands::Add { files } => {
-            files
-                .iter()
-                .for_each(|filename| println!("Adding {filename}"));
+            match process_files(&files) {
+                Ok(()) => { files.iter().for_each(|f| println!("adding file: {f}")) }
+                Err(e) => { println!("Error adding files: {e:?}") }
+            }
         }
     }
+}
+
+fn init_repo() {
+    let current_path; 
+    match env::current_exe() {
+        Ok(exe_path) => current_path = exe_path.clone(),
+        Err(_) => { return }
+    };
+    println!("initializing tig repo in: {}", current_path.display());
+}
+
+fn process_files(files: &Vec<String>) -> Result<(), &str> {
+    
+    for file in files {
+        
+    }
+    Ok(())
 }
